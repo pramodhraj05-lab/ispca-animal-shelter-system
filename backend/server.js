@@ -1,12 +1,13 @@
 const express = require("express");
+const path = require("path");
 const app = express();
+const PORT = 3000;
 
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, "../frontend")));
 app.get("/", (req, res) => {
-  res.send("ISPCA Animal Tracker API Running");
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
