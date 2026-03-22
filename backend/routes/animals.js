@@ -8,13 +8,17 @@ let animals = [
 router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
-  const animal = animals.find(a => a.id === id);
+  db.get("SELECT * FROM animals WHERE id = ?", [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
 
-  if (!animal) {
-    return res.status(404).json({ error: "Animal not found" });
-  }
+    if (!row) {
+      return res.status(404).json({ error: "Animal not found" });
+    }
 
-  res.json(animal);
+    res.json(row);
+  });
 });
 
 router.get("/", (req, res) => {
