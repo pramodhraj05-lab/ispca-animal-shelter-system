@@ -23,5 +23,5 @@ const newAnimal = {
   species,
   age
 };
-
+animals.push(newAnimal);
 module.exports = router;
