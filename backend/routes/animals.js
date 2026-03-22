@@ -58,7 +58,16 @@ router.put("/:id", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-  res.send("DELETE route working");
+  const id = parseInt(req.params.id);
+
+  const index = animals.findIndex(a => a.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Animal not found" });
+  }
+
+  const deletedAnimal = animals.splice(index, 1);
+  res.json(deletedAnimal[0]);
 });
 
 module.exports = router;
