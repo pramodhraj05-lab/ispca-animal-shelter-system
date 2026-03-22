@@ -59,20 +59,28 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
   const id = parseInt(req.params.id);
-
-  const animal = animals.find(a => a.id === id);
-
-  if (!animal) {
-    return res.status(404).json({ error: "Animal not found" });
-  }
-
   const { name, species, age } = req.body;
 
-  if (name) animal.name = name;
-  if (species) animal.species = species;
-  if (age !== undefined) animal.age = age;
+  db.run(
+    "UPDATE animals SET name = ?, species = ?, age = ? WHERE id = ?",
+    [name, species, age, id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
-  res.json(animal);
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Animal not found" });
+      }
+
+      res.json({
+        id,
+        name,
+        species,
+        age
+      });
+    }
+  );
 });
 
 router.delete("/:id", (req, res) => {
