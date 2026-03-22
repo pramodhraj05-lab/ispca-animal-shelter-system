@@ -9,4 +9,8 @@ router.get("/", (req, res) => {
   res.json(animals);
 });
 
+router.post("/", (req, res) => {
+  res.send("POST route working");
+});
+
 module.exports = router;
