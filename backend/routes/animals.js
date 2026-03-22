@@ -14,4 +14,8 @@ router.post("/", (req, res) => {
 });
 const { name, species, age } = req.body;
 
+if (!name || !species) {
+  return res.status(400).json({ error: "name and species required" });
+}
+
 module.exports = router;
