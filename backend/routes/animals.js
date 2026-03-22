@@ -56,6 +56,7 @@ router.post("/", (req, res) => {
     });
   }
 );
+});
 
 router.put("/:id", (req, res) => {
   const id = parseInt(req.params.id);
