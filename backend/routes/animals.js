@@ -12,5 +12,6 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
   res.send("POST route working");
 });
+const { name, species, age } = req.body;
 
 module.exports = router;
