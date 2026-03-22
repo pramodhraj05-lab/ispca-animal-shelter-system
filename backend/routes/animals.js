@@ -40,20 +40,21 @@ router.post("/", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  res.send("working");
+  const id = parseInt(req.params.id);
+
+  const animal = animals.find(a => a.id === id);
+
+  if (!animal) {
+    return res.status(404).json({ error: "Animal not found" });
+  }
+
+  const { name, species, age } = req.body;
+
+  if (name) animal.name = name;
+  if (species) animal.species = species;
+  if (age !== undefined) animal.age = age;
+
+  res.json(animal);
 });
-const id = parseInt(req.params.id);
-const animal = animals.find(a => a.id === id);
-
-if (!animal) {
-  return res.status(404).json({ error: "Animal not found" });
-}
-const { name, species, age } = req.body;
-
-if (name) animal.name = name;
-if (species) animal.species = species;
-if (age !== undefined) animal.age = age;
-
-res.json(animal);
 
 module.exports = router;
