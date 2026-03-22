@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const db = require("../db/database");
 
 let animals = [
   { id: 1, name: "Buddy", species: "Dog", age: 3 }
