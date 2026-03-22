@@ -40,11 +40,22 @@ router.post("/", (req, res) => {
     species,
     age
   };
+  db.run(
+  "INSERT INTO animals (name, species, age) VALUES (?, ?, ?)",
+  [name, species, age],
+  function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
 
-  animals.push(newAnimal);
-
-  res.status(201).json(newAnimal);
-});
+    res.status(201).json({
+      id: this.lastID,
+      name,
+      species,
+      age
+    });
+  }
+);
 
 router.put("/:id", (req, res) => {
   const id = parseInt(req.params.id);
