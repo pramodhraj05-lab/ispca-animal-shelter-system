@@ -57,4 +57,8 @@ router.put("/:id", (req, res) => {
   res.json(animal);
 });
 
+router.delete("/:id", (req, res) => {
+  res.send("DELETE route working");
+});
+
 module.exports = router;
