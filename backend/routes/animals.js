@@ -18,7 +18,13 @@ router.get("/:id", (req, res) => {
 });
 
 router.get("/", (req, res) => {
-  res.json(animals);
+  db.all("SELECT * FROM animals", [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    res.json(rows);
+  });
 });
 
 router.post("/", (req, res) => {
