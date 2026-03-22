@@ -24,4 +24,5 @@ const newAnimal = {
   age
 };
 animals.push(newAnimal);
+res.status(201).json(newAnimal);
 module.exports = router;
