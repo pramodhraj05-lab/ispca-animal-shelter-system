@@ -39,4 +39,8 @@ router.post("/", (req, res) => {
   res.status(201).json(newAnimal);
 });
 
+router.put("/:id", (req, res) => {
+  res.send("working");
+});
+
 module.exports = router;
