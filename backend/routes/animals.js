@@ -4,6 +4,17 @@ const router = express.Router();
 let animals = [
   { id: 1, name: "Buddy", species: "Dog", age: 3 }
 ];
+router.get("/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const animal = animals.find(a => a.id === id);
+
+  if (!animal) {
+    return res.status(404).json({ error: "Animal not found" });
+  }
+
+  res.json(animal);
+});
 
 router.get("/", (req, res) => {
   res.json(animals);
@@ -26,10 +37,6 @@ router.post("/", (req, res) => {
   animals.push(newAnimal);
 
   res.status(201).json(newAnimal);
-});
-
-router.put("/:id", (req, res) => {
-  res.send("GET by ID working");
 });
 
 module.exports = router;
