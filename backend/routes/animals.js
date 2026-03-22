@@ -42,5 +42,7 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   res.send("working");
 });
+const id = parseInt(req.params.id);
+const animal = animals.find(a => a.id === id);
 
 module.exports = router;
