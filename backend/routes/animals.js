@@ -86,14 +86,24 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   const id = parseInt(req.params.id);
 
-  const index = animals.findIndex(a => a.id === id);
+  db.run(
+    "DELETE FROM animals WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
-  if (index === -1) {
-    return res.status(404).json({ error: "Animal not found" });
-  }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Animal not found" });
+      }
 
-  const deletedAnimal = animals.splice(index, 1);
-  res.json(deletedAnimal[0]);
+      res.json({
+        message: "Animal deleted successfully",
+        id: id
+      });
+    }
+  );
 });
 
 module.exports = router;
