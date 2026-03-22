@@ -28,4 +28,8 @@ router.post("/", (req, res) => {
   res.status(201).json(newAnimal);
 });
 
+router.put("/:id", (req, res) => {
+  res.send("GET by ID working");
+});
+
 module.exports = router;
