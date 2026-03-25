@@ -39,11 +39,12 @@ router.post("/", (req, res) => {
     id: Date.now(),
     name,
     species,
-    age
+    age,
+    image
   };
   db.run(
-  "INSERT INTO animals (name, species, age) VALUES (?, ?, ?)",
-  [name, species, age],
+  "INSERT INTO animals (name, species, age) VALUES (?, ?, ?, ?)",
+  [name, species, age, image],
   function (err) {
     if (err) {
       return res.status(500).json({ error: err.message });
