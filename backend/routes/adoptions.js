@@ -56,3 +56,22 @@ router.put("/:id", (req, res) => {
     }
   );
 });
+
+router.delete("/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  db.run(
+    "DELETE FROM adoptions WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Adoption not found" });
+      }
+
+      res.json({ message: "Adoption deleted", id });
+    }
+  );
+});
+
+module.exports = router;
