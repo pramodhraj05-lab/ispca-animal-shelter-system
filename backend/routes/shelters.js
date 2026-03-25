@@ -41,3 +41,21 @@ router.post("/", (req, res) => {
     }
   );
 });
+
+router.put("/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, location } = req.body;
+
+  db.run(
+    "UPDATE shelters SET name = ?, location = ? WHERE id = ?",
+    [name, location, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Shelter not found" });
+      }
+
+      res.json({ id, name, location });
+    }
+  );
+})
