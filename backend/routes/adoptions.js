@@ -38,3 +38,21 @@ router.post("/", (req, res) => {
     }
   );
 });
+
+router.put("/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const { animal_id, adopter_name, adoption_date } = req.body;
+
+  db.run(
+    "UPDATE adoptions SET animal_id = ?, adopter_name = ?, adoption_date = ? WHERE id = ?",
+    [animal_id, adopter_name, adoption_date, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Adoption not found" });
+      }
+
+      res.json({ id, animal_id, adopter_name, adoption_date });
+    }
+  );
+});
