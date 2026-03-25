@@ -28,4 +28,13 @@ db.run(`
   )
 `);
 
+db.run(`
+  CREATE TABLE IF NOT EXISTS adoptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    animal_id INTEGER,
+    adopter_name TEXT,
+    adoption_date TEXT
+  )
+`);
+
 module.exports = db;
