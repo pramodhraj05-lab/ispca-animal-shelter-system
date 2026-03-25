@@ -7,9 +7,11 @@ app.use(express.json());
 
 const animalRoutes = require("./routes/animals");
 const shelterRoutes = require("./routes/shelters");
+const adoptionRoutes = require("./routes/adoptions");
 
 app.use("/animals", animalRoutes);
 app.use("/shelters", shelterRoutes);
+app.use("/adoptions", adoptionRoutes);
 
 app.use(express.static(path.join(__dirname, "../frontend")));
 
