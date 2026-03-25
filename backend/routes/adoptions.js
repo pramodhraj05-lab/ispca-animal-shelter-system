@@ -19,3 +19,22 @@ router.get("/:id", (req, res) => {
     res.json(row);
   });
 });
+
+router.post("/", (req, res) => {
+  const { animal_id, adopter_name, adoption_date } = req.body;
+
+  db.run(
+    "INSERT INTO adoptions (animal_id, adopter_name, adoption_date) VALUES (?, ?, ?)",
+    [animal_id, adopter_name, adoption_date],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(201).json({
+        id: this.lastID,
+        animal_id,
+        adopter_name,
+        adoption_date
+      });
+    }
+  );
+});
