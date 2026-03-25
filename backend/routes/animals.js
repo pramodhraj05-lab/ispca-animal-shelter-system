@@ -29,35 +29,29 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { name, species, age } = req.body;
+  const { name, species, age, image } = req.body;
 
   if (!name || !species) {
     return res.status(400).json({ error: "name and species required" });
   }
 
-  const newAnimal = {
-    id: Date.now(),
-    name,
-    species,
-    age,
-    image
-  };
   db.run(
-  "INSERT INTO animals (name, species, age) VALUES (?, ?, ?, ?)",
-  [name, species, age, image],
-  function (err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+    "INSERT INTO animals (name, species, age, image) VALUES (?, ?, ?, ?)",
+    [name, species, age, image],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
-    res.status(201).json({
-      id: this.lastID,
-      name,
-      species,
-      age
-    });
-  }
-);
+      res.status(201).json({
+        id: this.lastID,
+        name,
+        species,
+        age,
+        image
+      });
+    }
+  );
 });
 
 router.put("/:id", (req, res) => {
