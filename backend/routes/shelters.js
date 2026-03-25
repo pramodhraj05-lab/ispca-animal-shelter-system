@@ -19,3 +19,25 @@ router.get("/:id", (req, res) => {
     res.json(row);
   });
 });
+
+router.post("/", (req, res) => {
+  const { name, location } = req.body;
+
+  if (!name || !location) {
+    return res.status(400).json({ error: "name and location required" });
+  }
+
+  db.run(
+    "INSERT INTO shelters (name, location) VALUES (?, ?)",
+    [name, location],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(201).json({
+        id: this.lastID,
+        name,
+        location
+      });
+    }
+  );
+});
