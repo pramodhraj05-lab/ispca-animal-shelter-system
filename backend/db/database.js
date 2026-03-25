@@ -16,7 +16,9 @@ db.run(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     species TEXT NOT NULL,
-    age INTEGER
+    age INTEGER,
+    image TEXT
+
   )
 `);
 
