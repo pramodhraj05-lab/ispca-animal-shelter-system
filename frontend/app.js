@@ -48,3 +48,25 @@ function addAnimal() {
       fetchAnimals();
     });
 }
+
+div.innerHTML = `
+  <div class="card">
+    <img src="${animal.image}" />
+    <h3>${animal.name}</h3>
+    <p><b>Species:</b> ${animal.species}</p>
+    <p><b>Age:</b> ${animal.age}</p>
+
+    <button onclick="deleteAnimal(${animal.id})" style="background:red;margin-top:10px;">
+      Delete
+    </button>
+  </div>
+`;
+
+function deleteAnimal(id) {
+  fetch(`http://localhost:3000/animals/${id}`, {
+    method: "DELETE"
+  })
+  .then(() => {
+    fetchAnimals(); // refresh UI
+  });
+}
