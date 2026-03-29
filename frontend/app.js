@@ -1,10 +1,24 @@
 const API = "http://localhost:3000/animals";
 
+const token = localStorage.getItem("token");
+
+if (!token) {
+  alert("You must login first");
+  window.location.href = "/";
+}
+
 window.onload = fetchAnimals;
 
 function fetchAnimals() {
-  fetch(API)
-    .then(res => res.json())
+  fetch(API, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
     .then(data => {
       const container = document.getElementById("animalList");
       container.innerHTML = "";
@@ -19,40 +33,47 @@ function fetchAnimals() {
           <h3>${animal.name}</h3>
           <p>Species: ${animal.species}</p>
           <p>Age: ${animal.age}</p>
-          <img src="${animal.image}" width="150"/>
+          <img src="${animal.image || ''}" width="150"/><br><br>
+          <button onclick="deleteAnimal(${animal.id})">Delete</button>
         `;
 
         container.appendChild(div);
       });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error loading animals. Login again.");
     });
 }
 
 function addAnimal() {
-  const name = document.getElementById("name").value;
-  const species = document.getElementById("species").value;
-  const age = document.getElementById("age").value;
+  const formData = new FormData();
+
+  formData.append("name", document.getElementById("name").value);
+  formData.append("species", document.getElementById("species").value);
+  formData.append("age", document.getElementById("age").value);
 
   fetch(API, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({
-      name,
-      species,
-      age,
-      image: "images/dog.png"
-    })
+    body: formData
+  })
+    .then(res => res.json())
+    .then(() => {
+      fetchAnimals();
+    });
+}
+
+function deleteAnimal(id) {
+  fetch(`${API}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
   })
     .then(() => {
       fetchAnimals();
     });
 }
-function deleteAnimal(id) {
-  fetch(`http://localhost:3000/animals/${id}`, {
-    method: "DELETE"
-  })
-  .then(() => {
-    fetchAnimals(); // refresh UI
-  });
-}   
