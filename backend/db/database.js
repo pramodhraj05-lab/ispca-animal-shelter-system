@@ -39,4 +39,13 @@ db.run(`
   )
 `);
 
+db.run(`
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE,
+  password TEXT,
+  role TEXT
+)
+`);
+
 module.exports = db;
