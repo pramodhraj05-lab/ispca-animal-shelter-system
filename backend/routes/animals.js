@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
+const verifyToken = require("../middleware/authMiddleware");
 
 router.get("/:id", (req, res) => {
   const id = parseInt(req.params.id);
