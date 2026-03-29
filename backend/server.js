@@ -4,6 +4,7 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
+app.use("/auth", require("./routes/auth"));
 
 const animalRoutes = require("./routes/animals");
 const shelterRoutes = require("./routes/shelters");
