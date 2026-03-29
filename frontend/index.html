@@ -1,15 +1,27 @@
-<link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animal Tracking System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="container">
-  <h1>Animal Tracking System</h1>
+  <div class="container">
+    <h1>Animal Tracking System</h1>
 
-  <div id="animalList"></div>
+    <!-- Animal List -->
+    <h2>Animal List</h2>
+    <div id="animalList"></div>
 
-  <h2>Add Animal</h2>
-  <input id="name" placeholder="Name">
-  <input id="species" placeholder="Species">
-  <input id="age" placeholder="Age">
-  <button onclick="addAnimal()">Add</button>
-</div>
+    <!-- Add Animal -->
+    <h2>Add Animal</h2>
+    <input id="name" placeholder="Name">
+    <input id="species" placeholder="Species">
+    <input id="age" placeholder="Age" type="number">
+    <button onclick="addAnimal()">Add</button>
+  </div>
 
-<script src="app.js"></script>      
+  <script src="app.js"></script>
+</body>
+</html>
