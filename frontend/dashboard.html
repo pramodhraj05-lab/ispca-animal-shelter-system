@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PawHaven — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ── SIDEBAR ─────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">🐾</span>
+      <span class="logo-text">PawHaven</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="animals">
+        <span class="nav-icon">🐶</span><span class="nav-label">Animals</span>
+      </a>
+      <a href="#" class="nav-item" data-section="shelters">
+        <span class="nav-icon">🏠</span><span class="nav-label">Shelters</span>
+      </a>
+      <a href="#" class="nav-item" data-section="adoptions">
+        <span class="nav-icon">❤️</span><span class="nav-label">Adoptions</span>
+      </a>
+      <!-- Admin-only section -->
+      <a href="#" class="nav-item admin-only hidden" data-section="users">
+        <span class="nav-icon">👥</span><span class="nav-label">Users</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="user-name">Loading…</div>
+        <div class="user-role" id="user-role">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────── -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Animals</h1>
+        <span class="page-subtitle" id="page-subtitle">All animals in the shelter</span>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="Search…"/>
+        </div>
+        <button class="btn btn-primary admin-only hidden" id="add-btn">+ Add New</button>
+      </div>
+    </header>
+
+    <!-- STATS BAR (animals section) -->
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat-card">
+        <span class="stat-number" id="stat-total">0</span>
+        <span class="stat-label">Total Animals</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-available">0</span>
+        <span class="stat-label">Available</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-adopted">0</span>
+        <span class="stat-label">Adopted</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="stat-species">0</span>
+        <span class="stat-label">Species</span>
+      </div>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div class="cards-grid" id="cards-grid">
+      <div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════
+       ANIMAL MODAL (Add / Edit)
+  ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="animal-modal-overlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('animal-modal-overlay')">✕</button>
+      <h2 class="modal-title" id="animal-modal-title">Add Animal</h2>
+
+      <form id="animal-form" class="form" onsubmit="return false;" enctype="multipart/form-data">
+        <input type="hidden" id="form-id"/>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name *</label>
+            <input type="text" id="form-name" class="form-input" placeholder="e.g. Buddy" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Species *</label>
+            <input type="text" id="form-species" class="form-input" placeholder="e.g. Dog" required/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Breed</label>
+            <input type="text" id="form-breed" class="form-input" placeholder="e.g. Labrador"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Age (years)</label>
+            <input type="number" id="form-age" class="form-input" placeholder="e.g. 3" min="0"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select id="form-gender" class="form-input">
+              <option value="">Select…</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="form-status" class="form-input">
+              <option value="Available">Available</option>
+              <option value="Adopted">Adopted</option>
+              <option value="Medical Hold">Medical Hold</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Shelter</label>
+          <select id="form-shelter" class="form-input">
+            <option value="">None</option>
+          </select>
+        </div>
+
+        <!-- Image upload -->
+        <div class="form-group full-width">
+          <label class="form-label">Image</label>
+          <div class="image-upload-area" id="image-upload-area">
+            <div class="image-preview-wrap" id="image-preview-wrap" style="display:none;">
+              <img id="image-preview" src="" alt="Preview"/>
+              <button type="button" class="image-clear-btn" onclick="clearImage()">✕</button>
+            </div>
+            <div class="image-upload-prompt" id="image-upload-prompt">
+              <span class="upload-icon">📷</span>
+              <span>Click to upload image</span>
+              <small>JPG, PNG, GIF, WEBP · max 5MB</small>
+            </div>
+            <input type="file" id="form-image-file" accept="image/*" onchange="previewImage(this)"/>
+          </div>
+          <div class="form-group" style="margin-top:10px;">
+            <label class="form-label" style="font-size:0.72rem;">— or paste image URL —</label>
+            <input type="text" id="form-image-url" class="form-input" placeholder="https://…"/>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Notes</label>
+          <textarea id="form-notes" class="form-input form-textarea" placeholder="Health info, temperament, special needs…"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('animal-modal-overlay')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="animal-submit-btn">Save Animal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SHELTER MODAL
+  ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="shelter-modal-overlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('shelter-modal-overlay')">✕</button>
+      <h2 class="modal-title" id="shelter-modal-title">Add Shelter</h2>
+
+      <form id="shelter-form" class="form" onsubmit="return false;">
+        <input type="hidden" id="shelter-form-id"/>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Shelter Name *</label>
+            <input type="text" id="shelter-name" class="form-input" placeholder="e.g. Dublin North Shelter" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location *</label>
+            <input type="text" id="shelter-location" class="form-input" placeholder="e.g. Dublin, Ireland" required/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" id="shelter-phone" class="form-input" placeholder="+353 1 234 5678"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacity</label>
+            <input type="number" id="shelter-capacity" class="form-input" placeholder="e.g. 50" min="0"/>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Email</label>
+          <input type="email" id="shelter-email" class="form-input" placeholder="shelter@ispca.ie"/>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('shelter-modal-overlay')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="shelter-submit-btn">Save Shelter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ADOPTION REQUEST MODAL (customer)
+  ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="adoption-modal-overlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('adoption-modal-overlay')">✕</button>
+      <h2 class="modal-title" id="adoption-modal-title">Request Adoption</h2>
+      <p class="modal-subtitle" id="adoption-animal-info"></p>
+
+      <form id="adoption-form" class="form" onsubmit="return false;">
+        <input type="hidden" id="adoption-animal-id"/>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name *</label>
+            <input type="text" id="adoption-name" class="form-input" placeholder="Full name" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Date</label>
+            <input type="date" id="adoption-date" class="form-input"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="adoption-email" class="form-input" placeholder="your@email.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" id="adoption-phone" class="form-input" placeholder="+353 …"/>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Message</label>
+          <textarea id="adoption-notes" class="form-input form-textarea" placeholder="Tell us about yourself and why you'd like to adopt…"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('adoption-modal-overlay')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="adoption-submit-btn">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ADOPTION ADMIN EDIT MODAL
+  ═══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="adoption-edit-overlay">
+    <div class="modal modal-sm">
+      <button class="modal-close" onclick="closeModal('adoption-edit-overlay')">✕</button>
+      <h2 class="modal-title">Update Adoption Status</h2>
+      <input type="hidden" id="adoption-edit-id"/>
+      <div class="form-group" style="margin-bottom:24px;">
+        <label class="form-label">Status</label>
+        <select id="adoption-edit-status" class="form-input">
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="closeModal('adoption-edit-overlay')">Cancel</button>
+        <button class="btn btn-primary" onclick="updateAdoptionStatus()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DELETE CONFIRM ──────────────────────────── -->
+  <div class="modal-overlay" id="delete-overlay">
+    <div class="modal modal-sm" style="text-align:center;">
+      <button class="modal-close" onclick="closeModal('delete-overlay')">✕</button>
+      <div style="font-size:2.8rem;margin-bottom:12px;">🗑️</div>
+      <h2 class="modal-title">Delete this record?</h2>
+      <p style="font-size:0.875rem;color:var(--text-mid);line-height:1.6;margin-bottom:28px;">
+        This action cannot be undone.
+      </p>
+      <div class="form-actions" style="justify-content:center;">
+        <button class="btn btn-ghost" onclick="closeModal('delete-overlay')">Cancel</button>
+        <button class="btn btn-danger" id="delete-confirm-btn">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ─────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
