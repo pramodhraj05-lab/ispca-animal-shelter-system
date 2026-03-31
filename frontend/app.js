@@ -1,10 +1,11 @@
 const API = "http://localhost:3000/animals";
 
-const token = localStorage.getItem("token");
+const TOKEN = localStorage.getItem("token");
+const USER  = JSON.parse(localStorage.getItem("user") || "null");
 
-if (!token) {
-  alert("You must login first");
-  window.location.href = "/";
+if (!TOKEN || !USER) {
+  console.log("No credentials found, redirecting to login...");
+  window.location.href = "/"; 
 }
 
 window.onload = fetchAnimals;
