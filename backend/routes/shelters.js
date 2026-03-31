@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const verifyToken = require("../middleware/auth");
+const { authMiddleware } = require("../middleware/auth");
 
-router.get("/", verifyToken, (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const query = `
     SELECT s.*, COUNT(a.id) as animal_count
     FROM shelters s
@@ -16,7 +16,7 @@ router.get("/", verifyToken, (req, res) => {
   });
 });
 
-router.post("/", verifyToken, (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: "Admin access required" });
   
   const { name, location, phone, email, capacity } = req.body;
