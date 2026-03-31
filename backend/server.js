@@ -24,12 +24,6 @@ const { authMiddleware, adminOnly } = require("./middleware/auth");
 
 app.use("/auth", authRoutes);
 
-// Protected admin-only user list
-app.get("/auth/users", authMiddleware, adminOnly, (req, res, next) => {
-  req.url = "/users";
-  authRoutes(req, res, next);
-});
-
 app.use("/animals",   animalRoutes);
 app.use("/shelters",  shelterRoutes);
 app.use("/adoptions", adoptionRoutes);
