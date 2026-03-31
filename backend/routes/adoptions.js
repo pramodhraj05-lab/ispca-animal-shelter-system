@@ -1,77 +1,53 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
+const verifyToken = require("../middleware/authMiddleware");
 
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM adoptions", [], (err, rows) => {
+// ── GET ALL ADOPTIONS ─────────────────────────────
+router.get("/", verifyToken, (req, res) => {
+  const query = `
+    SELECT ad.*, a.name as animal_name, a.species as animal_species, a.image as animal_image
+    FROM adoptions ad
+    LEFT JOIN animals a ON ad.animal_id = a.id
+    ORDER BY ad.created_at DESC
+  `;
+  db.all(query, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
 
-router.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
+// ── CREATE ADOPTION REQUEST ───────────────────────
+router.post("/", verifyToken, (req, res) => {
+  const { animal_id, adopter_name, adoption_date, adopter_email, adopter_phone, notes } = req.body;
 
-  db.get("SELECT * FROM adoptions WHERE id = ?", [id], (err, row) => {
+  const sql = `INSERT INTO adoptions (animal_id, adopter_name, adoption_date, adopter_email, adopter_phone, notes) 
+               VALUES (?, ?, ?, ?, ?, ?)`;
+  
+  db.run(sql, [animal_id, adopter_name, adoption_date, adopter_email, adopter_phone, notes], function(err) {
     if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(404).json({ error: "Adoption not found" });
-
-    res.json(row);
+    res.status(201).json({ id: this.lastID, ...req.body });
   });
 });
 
-router.post("/", (req, res) => {
-  const { animal_id, adopter_name, adoption_date } = req.body;
+// ── UPDATE STATUS (Admin Only) ────────────────────
+router.put("/:id", verifyToken, (req, res) => {
+  // Check if user is admin
+  if (req.user.role !== 'admin') return res.status(403).json({ error: "Admin access required" });
 
-  db.run(
-    "INSERT INTO adoptions (animal_id, adopter_name, adoption_date) VALUES (?, ?, ?)",
-    [animal_id, adopter_name, adoption_date],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-
-      res.status(201).json({
-        id: this.lastID,
-        animal_id,
-        adopter_name,
-        adoption_date
-      });
-    }
-  );
-});
-
-router.put("/:id", (req, res) => {
   const id = parseInt(req.params.id);
-  const { animal_id, adopter_name, adoption_date } = req.body;
+  const { status } = req.body;
 
-  db.run(
-    "UPDATE adoptions SET animal_id = ?, adopter_name = ?, adoption_date = ? WHERE id = ?",
-    [animal_id, adopter_name, adoption_date, id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) {
-        return res.status(404).json({ error: "Adoption not found" });
-      }
-
-      res.json({ id, animal_id, adopter_name, adoption_date });
+  db.run("UPDATE adoptions SET status = ? WHERE id = ?", [status, id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    
+    // If approved, automatically update the animal's status
+    if (status === "Approved") {
+      db.run("UPDATE animals SET status = 'Adopted' WHERE id = (SELECT animal_id FROM adoptions WHERE id = ?)", [id]);
     }
-  );
-});
-
-router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  db.run(
-    "DELETE FROM adoptions WHERE id = ?",
-    [id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) {
-        return res.status(404).json({ error: "Adoption not found" });
-      }
-
-      res.json({ message: "Adoption deleted", id });
-    }
-  );
+    
+    res.json({ message: "Status updated", id });
+  });
 });
 
 module.exports = router;

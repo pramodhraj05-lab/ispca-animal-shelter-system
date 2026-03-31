@@ -1,78 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
+const verifyToken = require("../middleware/authMiddleware");
 
-router.get("/", (req, res) => {
-  db.all("SELECT * FROM shelters", [], (err, rows) => {
+router.get("/", verifyToken, (req, res) => {
+  const query = `
+    SELECT s.*, COUNT(a.id) as animal_count
+    FROM shelters s
+    LEFT JOIN animals a ON a.shelter_id = s.id
+    GROUP BY s.id
+  `;
+  db.all(query, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
 
-router.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  db.get("SELECT * FROM shelters WHERE id = ?", [id], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(404).json({ error: "Shelter not found" });
-
-    res.json(row);
-  });
-});
-
-router.post("/", (req, res) => {
-  const { name, location } = req.body;
-
-  if (!name || !location) {
-    return res.status(400).json({ error: "name and location required" });
-  }
-
+router.post("/", verifyToken, (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: "Admin access required" });
+  
+  const { name, location, phone, email, capacity } = req.body;
   db.run(
-    "INSERT INTO shelters (name, location) VALUES (?, ?)",
-    [name, location],
-    function (err) {
+    "INSERT INTO shelters (name, location, phone, email, capacity) VALUES (?, ?, ?, ?, ?)",
+    [name, location, phone, email, capacity],
+    function(err) {
       if (err) return res.status(500).json({ error: err.message });
-
-      res.status(201).json({
-        id: this.lastID,
-        name,
-        location
-      });
-    }
-  );
-});
-
-router.put("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, location } = req.body;
-
-  db.run(
-    "UPDATE shelters SET name = ?, location = ? WHERE id = ?",
-    [name, location, id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) {
-        return res.status(404).json({ error: "Shelter not found" });
-      }
-
-      res.json({ id, name, location });
-    }
-  );
-})
-
-router.delete("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-
-  db.run(
-    "DELETE FROM shelters WHERE id = ?",
-    [id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      if (this.changes === 0) {
-        return res.status(404).json({ error: "Shelter not found" });
-      }
-
-      res.json({ message: "Shelter deleted", id });
+      res.status(201).json({ id: this.lastID, name });
     }
   );
 });
