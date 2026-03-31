@@ -8,34 +8,32 @@ const SECRET = "secretkey";
 
 // Register
 router.post("/register", (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body; // Added name
 
-  const hashed = bcrypt.hashSync(password, 8);
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const hashed = bcrypt.hashSync(password, 10);
 
   db.run(
-    "INSERT INTO users (email, password, role) VALUES (?, ?, ?)",
-    [email, hashed, "user"],
+    "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+    [name, email, hashed, "customer"], // Default role is customer
     function (err) {
-      if (err) return res.status(400).json({ error: err.message });
-      res.json({ message: "User registered" });
+      if (err) {
+        if (err.message.includes("UNIQUE")) {
+          return res.status(400).json({ error: "Email already exists" });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Create token immediately so user is logged in
+      const token = jwt.sign({ id: this.lastID, name, email, role: "customer" }, SECRET);
+      
+      res.status(201).json({ 
+        token, 
+        user: { id: this.lastID, name, email, role: "customer" } 
+      });
     }
   );
 });
-
-// Login
-router.post("/login", (req, res) => {
-  const { email, password } = req.body;
-
-  db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const valid = bcrypt.compareSync(password, user.password);
-    if (!valid) return res.status(401).json({ error: "Invalid password" });
-
-    const token = jwt.sign({ id: user.id, role: user.role }, SECRET);
-
-    res.json({ token });
-  });
-});
-
-module.exports = router;
