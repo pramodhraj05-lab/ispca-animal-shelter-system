@@ -1,16 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const verifyToken = require("../middleware/authMiddleware"); //
+const { authMiddleware, adminOnly } = require("../middleware/auth"); // Use unified auth
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// ── GET ALL ANIMALS ────────────────────────────────
-// Added verifyToken to protect the data
-router.get("/", verifyToken, (req, res) => { 
-  // Updated query to include status and shelter info for the dashboard
+// ── MULTER SETUP (For local image storage) ──
+const uploadDir = path.join(__dirname, "../../uploads");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
+
+// ── GET ALL ANIMALS ──
+router.get("/", authMiddleware, (req, res) => {
   const query = `
-    SELECT a.*, s.name as shelter_name 
-    FROM animals a 
+    SELECT a.*, s.name as shelter_name, s.location as shelter_location
+    FROM animals a
     LEFT JOIN shelters s ON a.shelter_id = s.id
+    ORDER BY a.created_at DESC
   `;
   db.all(query, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -18,57 +34,32 @@ router.get("/", verifyToken, (req, res) => {
   });
 });
 
-// ── GET ONE ANIMAL ─────────────────────────────────
-router.get("/:id", verifyToken, (req, res) => {
-  const id = parseInt(req.params.id);
-  db.get("SELECT * FROM animals WHERE id = ?", [id], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(404).json({ error: "Animal not found" });
-    res.json(row);
-  });
-});
+// ── CREATE ANIMAL (With Image Upload) ──
+router.post("/", authMiddleware, adminOnly, upload.single("image"), (req, res) => {
+  const { name, species, breed, age, gender, status, notes, shelter_id, image_url } = req.body;
 
-// ── CREATE ANIMAL ──────────────────────────────────
-router.post("/", verifyToken, (req, res) => {
-  // Destructured new fields: status, notes, and shelter_id
-  const { name, species, age, image, status, notes, shelter_id } = req.body;
+  if (!name || !species) return res.status(400).json({ error: "Name and species required" });
 
-  if (!name || !species) {
-    return res.status(400).json({ error: "name and species required" });
-  }
+  // Use uploaded file path or provided URL
+  const image = req.file ? `/uploads/${req.file.filename}` : (image_url || null);
 
-  const sql = `INSERT INTO animals (name, species, age, image, status, notes, shelter_id) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  const params = [name, species, age, image, status || 'Available', notes, shelter_id];
+  const sql = `INSERT INTO animals (name, species, breed, age, gender, status, image, notes, shelter_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const params = [name, species, breed, age, gender, status || 'Available', image, notes, shelter_id];
 
   db.run(sql, params, function (err) {
     if (err) return res.status(500).json({ error: err.message });
-    res.status(201).json({ id: this.lastID, ...req.body });
+    res.status(201).json({ id: this.lastID, name, species, image });
   });
 });
 
-// ── UPDATE ANIMAL ──────────────────────────────────
-router.put("/:id", verifyToken, (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, species, age, status, notes, shelter_id } = req.body;
-
-  const sql = `UPDATE animals SET name = ?, species = ?, age = ?, status = ?, notes = ?, shelter_id = ? 
-               WHERE id = ?`;
-  
-  db.run(sql, [name, species, age, status, notes, shelter_id, id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: "Animal not found" });
-    res.json({ message: "Update successful", id });
-  });
-});
-
-// ── DELETE ANIMAL ──────────────────────────────────
-router.delete("/:id", verifyToken, (req, res) => {
+// ── DELETE ANIMAL ──
+router.delete("/:id", authMiddleware, adminOnly, (req, res) => {
   const id = parseInt(req.params.id);
   db.run("DELETE FROM animals WHERE id = ?", [id], function (err) {
     if (err) return res.status(500).json({ error: err.message });
     if (this.changes === 0) return res.status(404).json({ error: "Animal not found" });
-    res.json({ message: "Animal deleted successfully", id });
+    res.json({ message: "Animal deleted", id });
   });
 });
 
