@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const verifyToken = require("../middleware/auth");
+const { authMiddleware } = require("../middleware/auth");
 
 // ── GET ALL ADOPTIONS ─────────────────────────────
-router.get("/", verifyToken, (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const query = `
     SELECT ad.*, a.name as animal_name, a.species as animal_species, a.image as animal_image
     FROM adoptions ad
@@ -18,7 +18,7 @@ router.get("/", verifyToken, (req, res) => {
 });
 
 // ── CREATE ADOPTION REQUEST ───────────────────────
-router.post("/", verifyToken, (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   const { animal_id, adopter_name, adoption_date, adopter_email, adopter_phone, notes } = req.body;
 
   const sql = `INSERT INTO adoptions (animal_id, adopter_name, adoption_date, adopter_email, adopter_phone, notes) 
@@ -31,7 +31,7 @@ router.post("/", verifyToken, (req, res) => {
 });
 
 // ── UPDATE STATUS (Admin Only) ────────────────────
-router.put("/:id", verifyToken, (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   // Check if user is admin
   if (req.user.role !== 'admin') return res.status(403).json({ error: "Admin access required" });
 
