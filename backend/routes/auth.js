@@ -4,7 +4,7 @@ const db = require("../db/database");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const SECRET = "secretkey";
+const SECRET = process.env.JWT_SECRET || "pawhaven_secret_2024";
 
 // Register
 router.post("/register", (req, res) => {
