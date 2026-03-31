@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "ISPCA Animal Intake and Rehoming Tracker",
     "main": "backend/server.js",
-    "sripts": {
+    "scripts": {
         "start": "node backend/server.js",
         "dev": "nodemon backend/server.js"
     },
