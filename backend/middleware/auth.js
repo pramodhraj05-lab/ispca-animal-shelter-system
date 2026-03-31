@@ -25,5 +25,4 @@ function adminOnly(req, res, next) {
   next();
 }
 
-// CRITICAL: This must be an object so server.js can destructure it
 module.exports = { authMiddleware, adminOnly };
