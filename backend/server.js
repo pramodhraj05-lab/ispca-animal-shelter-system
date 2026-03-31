@@ -1,25 +1,51 @@
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 
 const app = express();
 
+// ── MIDDLEWARE ───────────────────────────────────
+app.use(cors());
 app.use(express.json());
-app.use("/auth", require("./routes/auth"));
+app.use(express.urlencoded({ extended: true }));
 
-const animalRoutes = require("./routes/animals");
-const shelterRoutes = require("./routes/shelters");
+// ── STATIC FILES ─────────────────────────────────
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+// Serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// ── ROUTES ────────────────────────────────────────
+const authRoutes     = require("./routes/auth");
+const animalRoutes   = require("./routes/animals");
+const shelterRoutes  = require("./routes/shelters");
 const adoptionRoutes = require("./routes/adoptions");
+const { authMiddleware, adminOnly } = require("./middleware/auth");
 
-app.use("/animals", animalRoutes);
-app.use("/shelters", shelterRoutes);
+app.use("/auth", authRoutes);
+
+// Protected admin-only user list
+app.get("/auth/users", authMiddleware, adminOnly, (req, res, next) => {
+  req.url = "/users";
+  authRoutes(req, res, next);
+});
+
+app.use("/animals",   animalRoutes);
+app.use("/shelters",  shelterRoutes);
 app.use("/adoptions", adoptionRoutes);
 
-app.use(express.static(path.join(__dirname, "../frontend")));
+// ── FRONTEND ROUTES ───────────────────────────────
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dashboard.html"));
+});
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+// ── START ─────────────────────────────────────────
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`\n🐾 PawHaven running on http://localhost:${PORT}`);
+  console.log(`   Admin login: admin@pawhaven.com / admin123\n`);
 });
