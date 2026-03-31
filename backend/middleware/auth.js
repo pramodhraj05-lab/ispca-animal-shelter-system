@@ -1,26 +1,29 @@
 const jwt = require("jsonwebtoken");
-const SECRET = "secretkey"; // Matches your existing secret
+const SECRET = process.env.JWT_SECRET || "pawhaven_secret_2024";
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) return res.status(401).json({ error: "Access denied" });
+  if (!token) {
+    return res.status(401).json({ error: "Access denied. No token provided." });
+  }
 
   try {
     const decoded = jwt.verify(token, SECRET);
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(403).json({ error: "Invalid token" });
+    return res.status(403).json({ error: "Invalid or expired token." });
   }
 }
 
 function adminOnly(req, res, next) {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: "Admin access required" });
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Admin access required." });
   }
   next();
 }
 
+// CRITICAL: This must be an object so server.js can destructure it
 module.exports = { authMiddleware, adminOnly };
