@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const verifyToken = require("../middleware/authMiddleware");
+const verifyToken = require("../middleware/auth");
 
 // ── GET ALL ADOPTIONS ─────────────────────────────
 router.get("/", verifyToken, (req, res) => {
