@@ -1,4 +1,9 @@
+/* ═══════════════════════════════════════════════════
+   PawHaven — Complete Stylesheet
+   Theme: Warm naturalistic · Earthy · ISPCA
+═══════════════════════════════════════════════════ */
 
+/* ── CSS VARIABLES ───────────────────────────────── */
 :root {
   --bg:           #f5f0e8;
   --bg-card:      #fffdf8;
