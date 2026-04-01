@@ -1,9 +1,3 @@
-/* ═══════════════════════════════════════════════════
-   PawHaven — Complete Stylesheet
-   Theme: Warm naturalistic · Earthy · ISPCA
-═══════════════════════════════════════════════════ */
-
-/* ── CSS VARIABLES ───────────────────────────────── */
 :root {
   --bg:           #f5f0e8;
   --bg-card:      #fffdf8;
@@ -748,3 +742,164 @@ select.form-input { cursor: pointer; }
   .stats-bar { flex-direction: column; }
   .modal { padding: 24px; }
 }
+
+/* ══════════════════════════════════════════════
+   ADDITIONS — capacity bar, track section,
+   adoption card, users table, auth-error
+═══════════════════════════════════════════════ */
+
+/* ── Capacity bar ────────────────────────────── */
+.capacity-bar-wrap {
+  width: 100%; height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.capacity-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s ease;
+}
+
+/* ── Shelter card ────────────────────────────── */
+.shelter-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-slow);
+  animation: cardIn 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+.shelter-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.shelter-header {
+  background: linear-gradient(135deg, #1c2b1e, #2d4230);
+  padding: 22px;
+  display: flex; align-items: center; gap: 14px;
+}
+.shelter-emoji { font-size: 2rem; }
+.shelter-header-info { flex: 1; }
+.shelter-card-name { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:#fff; margin-bottom:3px; }
+.shelter-location  { font-size:.8rem; color: var(--text-sidebar); }
+.animal-count-badge { background:rgba(255,255,255,.14); color:#fff; border-radius:var(--radius-pill); padding:4px 12px; font-size:.78rem; font-weight:600; white-space:nowrap; }
+.shelter-body { padding:16px 20px; }
+.shelter-detail { display:flex; align-items:center; gap:8px; font-size:.83rem; color:var(--text-mid); margin-bottom:6px; }
+
+/* ── Adoption card ───────────────────────────── */
+.adoption-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-slow);
+  animation: cardIn 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+.adoption-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+
+.adoption-card-header {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border-card);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.adoption-id { font-size:.72rem; font-weight:600; color:var(--text-light); text-transform:uppercase; letter-spacing:.06em; }
+.adoption-card-body { padding:14px 20px 16px; }
+.adoption-animal { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.adoption-animal-img {
+  width:44px; height:44px; border-radius:var(--radius-sm);
+  background:var(--accent-bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; flex-shrink:0; overflow:hidden;
+}
+.adoption-animal-img img { width:100%; height:100%; object-fit:cover; }
+.adoption-animal-name    { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--text-dark); }
+.adoption-animal-species { font-size:.78rem; color:var(--text-light); }
+.adoption-info { font-size:.82rem; color:var(--text-mid); line-height:1.8; }
+.adoption-info strong { color:var(--text-dark); font-weight:600; }
+
+/* ── Users table ─────────────────────────────── */
+.users-table-wrap {
+  background:var(--bg-card); border:1px solid var(--border-card);
+  border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm);
+  grid-column:1/-1;
+}
+.users-table { width:100%; border-collapse:collapse; }
+.users-table th {
+  background:var(--bg-sidebar); color:var(--text-sidebar);
+  padding:12px 18px; font-size:.74rem; font-weight:600;
+  text-transform:uppercase; letter-spacing:.06em; text-align:left;
+}
+.users-table td { padding:12px 18px; font-size:.85rem; color:var(--text-mid); border-bottom:1px solid var(--border-card); }
+.users-table tr:last-child td { border-bottom:none; }
+.users-table tr:hover td { background:var(--bg); }
+.role-badge { display:inline-block; padding:3px 10px; border-radius:var(--radius-pill); font-size:.72rem; font-weight:700; text-transform:uppercase; }
+.role-admin    { background:var(--accent-bg); color:var(--accent); }
+.role-customer { background:var(--info-lt);   color:var(--info); }
+
+/* ── Track section ───────────────────────────── */
+.track-section {
+  grid-column: 1/-1;
+  display: flex; justify-content: center; padding: 20px 0;
+}
+.track-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius);
+  padding: 40px;
+  width: 100%; max-width: 560px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.track-icon  { font-size: 3rem; margin-bottom: 12px; }
+.track-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; margin-bottom:8px; }
+.track-sub   { font-size:.85rem; color:var(--text-light); margin-bottom:28px; line-height:1.5; }
+
+/* ── Card shelter tag ────────────────────────── */
+.card-shelter { font-size:.78rem; color:var(--text-light); margin-bottom:10px; display:flex; align-items:center; gap:4px; }
+
+/* ── Auth error (reused in dashboard track) ─── */
+.auth-error {
+  background:var(--danger-lt); border:1px solid rgba(192,57,43,.2);
+  border-radius:var(--radius-sm); padding:10px 14px;
+  font-size:.83rem; color:var(--danger); margin-bottom:12px; display:none;
+}
+
+/* ── Info/blue variables ─────────────────────── */
+:root {
+  --info:    #1a56db;
+  --info-lt: #e8f0fe;
+}
+
+/* ── Card button variants ────────────────────── */
+.card-btn-adopt   { background:var(--accent-bg); color:var(--accent); }
+.card-btn-adopt:hover { background:var(--accent); color:#fff; }
+.card-btn-edit    { background:var(--info-lt); color:var(--info); }
+.card-btn-edit:hover { background:var(--info); color:#fff; }
+.card-btn-approve { background:var(--accent-bg); color:var(--accent); }
+.card-btn-approve:hover { background:var(--accent); color:#fff; }
+
+/* ── Image upload area ───────────────────────── */
+.image-upload-area {
+  border:2px dashed var(--border); border-radius:var(--radius);
+  background:var(--bg); position:relative; cursor:pointer;
+  transition:all var(--transition); overflow:hidden;
+  min-height:100px; display:flex; align-items:center; justify-content:center;
+}
+.image-upload-area:hover { border-color:var(--accent); background:var(--accent-bg); }
+.image-upload-prompt { display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px; pointer-events:none; }
+.upload-icon { font-size:1.8rem; }
+.image-upload-prompt span { font-size:.88rem; color:var(--text-mid); font-weight:500; }
+.image-upload-prompt small { font-size:.75rem; color:var(--text-light); }
+.image-upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.image-preview-wrap { width:100%; position:relative; }
+.image-preview-wrap img { width:100%; height:150px; object-fit:cover; display:block; }
+.image-clear-btn {
+  position:absolute; top:8px; right:8px;
+  background:rgba(0,0,0,.5); color:#fff; border:none; border-radius:50%;
+  width:28px; height:28px; cursor:pointer; font-size:.8rem;
+  display:flex; align-items:center; justify-content:center; transition:all var(--transition);
+}
+.image-clear-btn:hover { background:var(--danger); }
+
