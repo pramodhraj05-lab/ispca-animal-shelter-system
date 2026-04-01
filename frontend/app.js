@@ -112,3 +112,8 @@ function deleteAnimal(id) {
       alert("Error deleting animal");
     });
 }
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "/";
+}
