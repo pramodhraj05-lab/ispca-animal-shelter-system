@@ -16,7 +16,7 @@ db.serialize(() => {
     email TEXT UNIQUE,
     password TEXT,
     role TEXT DEFAULT 'customer'
-  )`);
+  )`);  
 
   db.run(`CREATE TABLE IF NOT EXISTS shelters (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
