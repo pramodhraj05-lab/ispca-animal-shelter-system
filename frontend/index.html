@@ -3,336 +3,238 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PawHaven — Login</title>
+  <title>ISPCA Tracking System — Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
   <style>
-    /* ── LOGIN-SPECIFIC STYLES ─────────────────── */
     body {
       background: var(--bg-sidebar);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px; overflow: hidden;
     }
-
-    /* Animated background blobs */
     body::before, body::after {
-      content: "";
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.12;
-      pointer-events: none;
+      content: ""; position: fixed; border-radius: 50%;
+      filter: blur(80px); opacity: 0.12; pointer-events: none;
     }
-    body::before {
-      width: 500px; height: 500px;
-      background: var(--accent);
-      top: -100px; left: -100px;
-      animation: float1 8s ease-in-out infinite;
-    }
-    body::after {
-      width: 400px; height: 400px;
-      background: #6aab7f;
-      bottom: -100px; right: -100px;
-      animation: float2 10s ease-in-out infinite;
-    }
-
-    @keyframes float1 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(40px, 30px); }
-    }
-    @keyframes float2 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-30px, -40px); }
-    }
+    body::before { width:500px;height:500px;background:var(--accent);top:-100px;left:-100px;animation:float1 8s ease-in-out infinite; }
+    body::after  { width:400px;height:400px;background:#6aab7f;bottom:-100px;right:-100px;animation:float2 10s ease-in-out infinite; }
+    @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
 
     .auth-card {
-      background: var(--bg-card);
-      border-radius: 24px;
-      padding: 48px;
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.35);
-      position: relative;
-      z-index: 1;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+      background:var(--bg-card); border-radius:24px; padding:48px;
+      width:100%; max-width:440px; box-shadow:0 30px 80px rgba(0,0,0,.35);
+      position:relative; z-index:1;
+      animation:slideUp .5s cubic-bezier(.16,1,.3,1) both;
     }
+    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .auth-logo { text-align:center; margin-bottom:32px; }
+    .auth-logo-icon { font-size:2.5rem; display:block; margin-bottom:8px; }
+    .auth-logo-text { font-family:'Playfair Display',serif; font-size:1.7rem; font-weight:700; color:var(--text-dark); }
+    .auth-logo-sub  { font-size:.82rem; color:var(--text-light); margin-top:4px; }
 
-    .auth-logo {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    .auth-tabs { display:flex; border:1.5px solid var(--border); border-radius:var(--radius-pill);
+                 padding:4px; margin-bottom:32px; background:var(--bg); }
+    .auth-tab  { flex:1; padding:9px; border:none; background:transparent;
+                 font-family:'DM Sans',sans-serif; font-size:.875rem; font-weight:600;
+                 color:var(--text-light); border-radius:var(--radius-pill); cursor:pointer; transition:all var(--transition); }
+    .auth-tab.active { background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(74,124,89,.35); }
 
-    .auth-logo-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+    .auth-panel        { display:none; }
+    .auth-panel.active { display:block; animation:fadeIn .25s ease; }
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
 
-    .auth-logo-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-dark);
-    }
+    .auth-title    { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:var(--text-dark); margin-bottom:6px; }
+    .auth-subtitle { font-size:.83rem; color:var(--text-light); margin-bottom:24px; }
 
-    .auth-logo-sub {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      margin-top: 4px;
-    }
+    .hint-box  { background:var(--accent-bg); border:1px solid rgba(74,124,89,.2); border-radius:var(--radius-sm);
+                 padding:12px 16px; margin-bottom:20px; font-size:.8rem; color:var(--accent); line-height:1.5; }
+    .auth-error{ background:var(--danger-lt); border:1px solid rgba(192,57,43,.2); border-radius:var(--radius-sm);
+                 padding:10px 14px; font-size:.83rem; color:var(--danger); margin-bottom:16px; display:none; }
+    .auth-btn  { width:100%; padding:13px; margin-top:8px; font-size:.95rem; }
+    .auth-form .form-group { margin-bottom:16px; }
 
-    /* Tabs */
-    .auth-tabs {
-      display: flex;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 4px;
-      margin-bottom: 32px;
-      background: var(--bg);
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 9px;
-      border: none;
-      background: transparent;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-light);
-      border-radius: var(--radius-pill);
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    .auth-tab.active {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(74,124,89,0.35);
-    }
-
-    .auth-panel { display: none; }
-    .auth-panel.active { display: block; animation: fadeIn 0.25s ease; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .auth-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 6px;
-    }
-
-    .auth-subtitle {
-      font-size: 0.83rem;
-      color: var(--text-light);
-      margin-bottom: 24px;
-    }
-
-    /* Admin hint box */
-    .hint-box {
-      background: var(--accent-bg);
-      border: 1px solid rgba(74,124,89,0.2);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      font-size: 0.8rem;
-      color: var(--accent);
-      line-height: 1.5;
-    }
-
-    .hint-box strong { font-weight: 600; }
-
-    .auth-error {
-      background: var(--danger-lt);
-      border: 1px solid rgba(192,57,43,0.2);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-size: 0.83rem;
-      color: var(--danger);
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    .auth-btn {
-      width: 100%;
-      padding: 13px;
-      margin-top: 8px;
-      font-size: 0.95rem;
-    }
-
-    .auth-form .form-group { margin-bottom: 16px; }
+    /* ── TRACK PANEL ── */
+    .track-result { margin-top:16px; }
+    .track-item   { background:var(--bg); border:1px solid var(--border-card);
+                    border-radius:var(--radius-sm); padding:14px; margin-bottom:10px; }
+    .track-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .track-label  { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-light); }
+    .track-val    { font-size:.9rem; color:var(--text-dark); font-weight:500; }
   </style>
 </head>
 <body>
-  <div class="auth-card">
-    <div class="auth-logo">
-      <span class="auth-logo-icon">🐾</span>
-      <div class="auth-logo-text">PawHaven</div>
-      <div class="auth-logo-sub">ISPCA Animal Shelter System</div>
-    </div>
+<div class="auth-card">
+  <div class="auth-logo">
+    <span class="auth-logo-icon">🐾</span>
+    <div class="auth-logo-text">ISPCA Tracking System</div>
+    <div class="auth-logo-sub">Irish Society for the Prevention of Cruelty to Animals</div>
+  </div>
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Login</button>
-      <button class="auth-tab" onclick="switchTab('register')">Register</button>
-    </div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+    <button class="auth-tab"        onclick="switchTab('register')">Register</button>
+    <button class="auth-tab"        onclick="switchTab('track')">Track</button>
+  </div>
 
-    <!-- LOGIN PANEL -->
-    <div class="auth-panel active" id="panel-login">
-      <div class="auth-title">Welcome back</div>
-      <div class="auth-subtitle">Sign in to your account</div>
-
-      <div class="hint-box">
-        <strong>Admin demo:</strong> admin@pawhaven.com / admin123<br>
-        Or register a customer account below.
+  <!-- LOGIN -->
+  <div class="auth-panel active" id="panel-login">
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-subtitle">Sign in to your account</div>
+    <div class="hint-box"><strong>Admin demo:</strong> admin@ispca.ie / admin123</div>
+    <div class="auth-error" id="login-error"></div>
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="your@email.com"/>
       </div>
-
-      <div class="auth-error" id="login-error"></div>
-
-      <div class="auth-form">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" id="login-email" class="form-input" placeholder="your@email.com"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="login-password" class="form-input" placeholder="••••••••"/>
-        </div>
-        <button class="btn btn-primary auth-btn" onclick="handleLogin()" id="login-btn">
-          Sign In
-        </button>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••"/>
       </div>
-    </div>
-
-    <!-- REGISTER PANEL -->
-    <div class="auth-panel" id="panel-register">
-      <div class="auth-title">Create account</div>
-      <div class="auth-subtitle">Register as a customer to browse and request adoptions</div>
-
-      <div class="auth-error" id="register-error"></div>
-
-      <div class="auth-form">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" id="reg-name" class="form-input" placeholder="John Doe"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" id="reg-email" class="form-input" placeholder="your@email.com"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="reg-password" class="form-input" placeholder="Min. 6 characters"/>
-        </div>
-        <button class="btn btn-primary auth-btn" onclick="handleRegister()" id="register-btn">
-          Create Account
-        </button>
-      </div>
+      <button class="btn btn-primary auth-btn" onclick="handleLogin()" id="login-btn">Sign In</button>
     </div>
   </div>
 
-  <script>
-    // Redirect if already logged in
-    if (localStorage.getItem("token")) {
-      window.location.href = "/dashboard";
-    }
+  <!-- REGISTER -->
+  <div class="auth-panel" id="panel-register">
+    <div class="auth-title">Create account</div>
+    <div class="auth-subtitle">Register to browse animals and submit adoption requests</div>
+    <div class="auth-error" id="register-error"></div>
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="reg-name" class="form-input" placeholder="John Murphy"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="reg-email" class="form-input" placeholder="your@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="reg-password" class="form-input" placeholder="Min. 6 characters"/>
+      </div>
+      <button class="btn btn-primary auth-btn" onclick="handleRegister()" id="register-btn">Create Account</button>
+    </div>
+  </div>
 
-    function switchTab(tab) {
-      document.querySelectorAll(".auth-tab").forEach((t, i) => {
-        t.classList.toggle("active", (i === 0 && tab === "login") || (i === 1 && tab === "register"));
-      });
-      document.getElementById("panel-login").classList.toggle("active", tab === "login");
-      document.getElementById("panel-register").classList.toggle("active", tab === "register");
-    }
+  <!-- TRACK -->
+  <div class="auth-panel" id="panel-track">
+    <div class="auth-title">Track Adoption</div>
+    <div class="auth-subtitle">Check your adoption request status by email or request ID</div>
+    <div class="auth-error" id="track-error"></div>
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input type="email" id="track-email" class="form-input" placeholder="email used when applying"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="font-size:.72rem">— or — Request ID</label>
+        <input type="number" id="track-id" class="form-input" placeholder="e.g. 4"/>
+      </div>
+      <button class="btn btn-primary auth-btn" onclick="handleTrack()" id="track-btn">Check Status</button>
+    </div>
+    <div class="track-result" id="track-result"></div>
+  </div>
 
-    async function handleLogin() {
-      const email    = document.getElementById("login-email").value.trim();
-      const password = document.getElementById("login-password").value;
-      const errEl    = document.getElementById("login-error");
-      const btn      = document.getElementById("login-btn");
+</div>
 
-      errEl.style.display = "none";
-      if (!email || !password) { showErr(errEl, "Please fill in all fields"); return; }
+<script>
+  if (localStorage.getItem("token")) window.location.href = "/dashboard";
 
-      btn.textContent = "Signing in…";
-      btn.disabled = true;
-
-      try {
-        const res  = await fetch("/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-
-        if (!res.ok) { showErr(errEl, data.error); return; }
-
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "/dashboard";
-      } catch (e) {
-        showErr(errEl, "Network error. Is the server running?");
-      } finally {
-        btn.textContent = "Sign In";
-        btn.disabled = false;
-      }
-    }
-
-    async function handleRegister() {
-      const name     = document.getElementById("reg-name").value.trim();
-      const email    = document.getElementById("reg-email").value.trim();
-      const password = document.getElementById("reg-password").value;
-      const errEl    = document.getElementById("register-error");
-      const btn      = document.getElementById("register-btn");
-
-      errEl.style.display = "none";
-      if (!name || !email || !password) { showErr(errEl, "Please fill in all fields"); return; }
-
-      btn.textContent = "Creating…";
-      btn.disabled = true;
-
-      try {
-        const res  = await fetch("/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password })
-        });
-        const data = await res.json();
-
-        if (!res.ok) { showErr(errEl, data.error); return; }
-
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "/dashboard";
-      } catch (e) {
-        showErr(errEl, "Network error. Is the server running?");
-      } finally {
-        btn.textContent = "Create Account";
-        btn.disabled = false;
-      }
-    }
-
-    function showErr(el, msg) {
-      el.textContent = msg;
-      el.style.display = "block";
-    }
-
-    // Allow Enter key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const activePanel = document.querySelector(".auth-panel.active").id;
-        if (activePanel === "panel-login") handleLogin();
-        else handleRegister();
-      }
+  function switchTab(tab) {
+    document.querySelectorAll(".auth-tab").forEach((t, i) => {
+      t.classList.toggle("active",
+        (i===0 && tab==="login") || (i===1 && tab==="register") || (i===2 && tab==="track"));
     });
-  </script>
+    ["login","register","track"].forEach(p => {
+      document.getElementById("panel-"+p).classList.toggle("active", p === tab);
+    });
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    const errEl = document.getElementById("login-error");
+    const btn   = document.getElementById("login-btn");
+    errEl.style.display = "none";
+    if (!email || !password) { showErr(errEl,"Please fill in all fields"); return; }
+    btn.textContent = "Signing in…"; btn.disabled = true;
+    try {
+      const res  = await fetch("/auth/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email,password}) });
+      const data = await res.json();
+      if (!res.ok) { showErr(errEl, data.error); return; }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      window.location.href = "/dashboard";
+    } catch { showErr(errEl,"Network error. Is the server running?"); }
+    finally { btn.textContent = "Sign In"; btn.disabled = false; }
+  }
+
+  async function handleRegister() {
+    const name = document.getElementById("reg-name").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value;
+    const errEl = document.getElementById("register-error");
+    const btn   = document.getElementById("register-btn");
+    errEl.style.display = "none";
+    if (!name || !email || !password) { showErr(errEl,"Please fill in all fields"); return; }
+    btn.textContent = "Creating…"; btn.disabled = true;
+    try {
+      const res  = await fetch("/auth/register", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,email,password}) });
+      const data = await res.json();
+      if (!res.ok) { showErr(errEl, data.error); return; }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      window.location.href = "/dashboard";
+    } catch { showErr(errEl,"Network error."); }
+    finally { btn.textContent = "Create Account"; btn.disabled = false; }
+  }
+
+  async function handleTrack() {
+    const email = document.getElementById("track-email").value.trim();
+    const id    = document.getElementById("track-id").value.trim();
+    const errEl = document.getElementById("track-error");
+    const btn   = document.getElementById("track-btn");
+    const result= document.getElementById("track-result");
+    errEl.style.display="none"; result.innerHTML="";
+    if (!email && !id) { showErr(errEl,"Enter your email or request ID"); return; }
+    btn.textContent="Checking…"; btn.disabled=true;
+    try {
+      const query = id ? `id=${id}` : `email=${encodeURIComponent(email)}`;
+      const res   = await fetch(`/adoptions/track?${query}`);
+      const data  = await res.json();
+      if (!res.ok) { showErr(errEl, data.error); return; }
+      const rows  = Array.isArray(data) ? data : [data];
+      result.innerHTML = rows.map(r => {
+        const statusClass = r.status==="Approved"?"status-approved":r.status==="Rejected"?"status-rejected":"status-pending";
+        return `<div class="track-item">
+          <div class="track-item-header">
+            <span class="track-label">Request #${r.id}</span>
+            <span class="card-status ${statusClass}">${r.status}</span>
+          </div>
+          <div class="track-val">🐾 ${r.animal_name||"Animal #"+r.animal_id} · ${r.animal_species||""}</div>
+          <div style="font-size:.8rem;color:var(--text-light);margin-top:4px">
+            Submitted by ${r.adopter_name}${r.adoption_date?" · "+new Date(r.adoption_date).toLocaleDateString("en-IE"):""}
+          </div>
+        </div>`;
+      }).join("");
+    } catch { showErr(errEl,"Could not reach server."); }
+    finally { btn.textContent="Check Status"; btn.disabled=false; }
+  }
+
+  function showErr(el, msg) { el.textContent=msg; el.style.display="block"; }
+
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    const active = document.querySelector(".auth-panel.active").id;
+    if (active==="panel-login")    handleLogin();
+    if (active==="panel-register") handleRegister();
+    if (active==="panel-track")    handleTrack();
+  });
+</script>
 </body>
 </html>
