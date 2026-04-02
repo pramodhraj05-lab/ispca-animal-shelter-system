@@ -4,6 +4,14 @@ const cors = require("cors");
 
 const app = express();
 
+process.on("uncaughtException", err => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("UNHANDLED REJECTION:", err);
+});
+
 // ── MIDDLEWARE ───────────────────────────────────
 app.use(cors());
 app.use(express.json());
