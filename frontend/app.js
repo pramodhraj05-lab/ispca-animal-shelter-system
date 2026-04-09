@@ -150,7 +150,6 @@ const SECTION_META = {
   shelters:  { title:"Shelters",  subtitle:"All registered ISPCA shelters",     endpoint:"/shelters" },
   adoptions: { title:"Adoptions", subtitle:"Adoption requests & status",        endpoint:"/adoptions" },
   track:     { title:"Track",     subtitle:"Track an adoption request",         endpoint:null },
-  users:     { title:"Users",     subtitle:"All registered accounts",           endpoint:"/auth/users" },
 };
 
 async function loadSection(section) {
@@ -181,7 +180,6 @@ function renderSection(section, data) {
   if      (section === "animals")   renderAnimals(data);
   else if (section === "shelters")  renderShelters(data);
   else if (section === "adoptions") renderAdoptions(data);
-  else if (section === "users")     renderUsers(data);
 }
 
 // ════════════════════════════════════════════════════
@@ -212,11 +210,13 @@ function renderAnimals(data) {
     card.style.animationDelay = `${i * 0.04}s`;
 
     const imgSrc = a.image || "";
-    const imgHTML = imgSrc
-      ? `<img class="card-image" src="${esc(imgSrc)}" alt="${esc(a.name)}"
-             onerror="this.parentElement.innerHTML='<div class=\'card-image-placeholder\'>${speciesEmoji(a.species)}</div>'">`
-      : `<div class="card-image-placeholder">${speciesEmoji(a.species)}</div>`;
-
+    setTimeout(() => {
+  document.querySelectorAll(".card-image").forEach(img => {
+    img.onerror = function () {
+      this.parentElement.innerHTML = `<div class="card-image-placeholder">${speciesEmoji(a.species)}</div>`;
+    };
+  });
+}, 0);
     // Admin buttons
     const adminBtns = IS_ADMIN ? `
       <button class="card-btn card-btn-edit"   onclick="openEditAnimal(${a.id})">✏️ Edit</button>
