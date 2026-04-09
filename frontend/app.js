@@ -1,16 +1,22 @@
+/* ═══════════════════════════════════════════════════
+   ISPCA Tracking System — app.js
+   Full navigation · CRUD · Role-based UI · Tracking
+═══════════════════════════════════════════════════ */
+
+// ── AUTH GUARD ─────────────────────────────────────
 const TOKEN = localStorage.getItem("token");
 const USER  = JSON.parse(localStorage.getItem("user") || "null");
 if (!TOKEN || !USER) { window.location.href = "/"; }
 
-const IS_ADMIN = false;
+const IS_ADMIN = USER?.role === "admin";
 
-
+// ── GLOBAL STATE ──────────────────────────────────
 let currentSection = "animals";
 let allData        = [];
 let allShelters    = [];
 let deleteCallback = null;
 
-
+// ── API HELPER ────────────────────────────────────
 async function api(url, options = {}) {
   const res = await fetch(url, {
     ...options,
@@ -28,6 +34,7 @@ function logout() {
   window.location.href = "/";
 }
 
+// ── UTILS ──────────────────────────────────────────
 function esc(str) {
   const d = document.createElement("div");
   d.textContent = String(str ?? "");
@@ -63,6 +70,7 @@ function fmtDate(d) {
   return new Date(d).toLocaleDateString("en-IE", { year:"numeric", month:"short", day:"numeric" });
 }
 
+// ── TOAST ──────────────────────────────────────────
 let _toastT;
 function showToast(msg, type = "success") {
   const t = document.getElementById("toast");
@@ -72,6 +80,7 @@ function showToast(msg, type = "success") {
   _toastT = setTimeout(() => t.classList.remove("show"), 3500);
 }
 
+// ── MODAL ──────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).classList.add("open"); }
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }
 
@@ -79,6 +88,7 @@ document.querySelectorAll(".modal-overlay").forEach(o => {
   o.addEventListener("click", e => { if (e.target === o) o.classList.remove("open"); });
 });
 
+// ── LOADING / ERROR STATES ─────────────────────────
 function showLoading() {
   document.getElementById("cards-grid").innerHTML =
     `<div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>`;
@@ -92,7 +102,11 @@ function showGridError(msg) {
     </div>`;
 }
 
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
+  setupUserUI();
   setupNavigation();
   setupSearch();
   setupAddBtn();
@@ -104,6 +118,19 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSheltersCache();
 });
 
+// ── USER UI ────────────────────────────────────────
+function setupUserUI() {
+  document.getElementById("user-name").textContent   = USER.name;
+  document.getElementById("user-role").textContent   = USER.role;
+  document.getElementById("user-avatar").textContent = (USER.name || "?")[0].toUpperCase();
+  if (IS_ADMIN) {
+    document.querySelectorAll(".admin-only").forEach(el => el.classList.remove("hidden"));
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  NAVIGATION  ← this is what was broken
+// ════════════════════════════════════════════════════
 function setupNavigation() {
   document.querySelectorAll(".nav-item").forEach(item => {
     item.addEventListener("click", e => {
@@ -117,11 +144,13 @@ function setupNavigation() {
   });
 }
 
+// ── SECTION META ──────────────────────────────────
 const SECTION_META = {
   animals:   { title:"Animals",   subtitle:"All animals in the shelter system", endpoint:"/animals" },
   shelters:  { title:"Shelters",  subtitle:"All registered ISPCA shelters",     endpoint:"/shelters" },
   adoptions: { title:"Adoptions", subtitle:"Adoption requests & status",        endpoint:"/adoptions" },
   track:     { title:"Track",     subtitle:"Track an adoption request",         endpoint:null },
+  users:     { title:"Users",     subtitle:"All registered accounts",           endpoint:"/auth/users" },
 };
 
 async function loadSection(section) {
@@ -133,6 +162,7 @@ async function loadSection(section) {
   document.getElementById("stats-bar").style.display   = section === "animals" ? "flex" : "none";
   document.getElementById("search-input").value        = "";
 
+  // "Track" section is rendered locally — no API call
   if (section === "track") { renderTrack(); return; }
 
   showLoading();
@@ -151,8 +181,12 @@ function renderSection(section, data) {
   if      (section === "animals")   renderAnimals(data);
   else if (section === "shelters")  renderShelters(data);
   else if (section === "adoptions") renderAdoptions(data);
+  else if (section === "users")     renderUsers(data);
 }
 
+// ════════════════════════════════════════════════════
+//  ANIMALS
+// ════════════════════════════════════════════════════
 function renderAnimals(data) {
   // Update stats
   document.getElementById("stat-total").textContent     = data.length;
@@ -183,13 +217,13 @@ function renderAnimals(data) {
              onerror="this.parentElement.innerHTML='<div class=\'card-image-placeholder\'>${speciesEmoji(a.species)}</div>'">`
       : `<div class="card-image-placeholder">${speciesEmoji(a.species)}</div>`;
 
-   
+    // Admin buttons
     const adminBtns = IS_ADMIN ? `
       <button class="card-btn card-btn-edit"   onclick="openEditAnimal(${a.id})">✏️ Edit</button>
       <button class="card-btn card-btn-delete" onclick="confirmDelete(() => deleteAnimal(${a.id}))">🗑️</button>
     ` : "";
 
-    
+    // Adopt button
     const adoptBtn = a.status !== "Adopted"
       ? `<button class="card-btn card-btn-adopt" onclick="openAdoptionRequest(${a.id},'${esc(a.name)}','${esc(a.species)}')">❤️ Adopt</button>`
       : `<span class="card-btn" style="opacity:.45;cursor:default;background:var(--border)">Adopted</span>`;
@@ -215,7 +249,7 @@ function renderAnimals(data) {
   });
 }
 
-
+// ── ADD / EDIT ANIMAL ──────────────────────────────
 async function loadSheltersCache() {
   try {
     const res = await api("/shelters");
@@ -276,7 +310,7 @@ function openEditAnimal(id) {
   openModal("animal-modal-overlay");
 }
 
-
+// Image upload preview
 function previewImage(input) {
   if (!input.files[0]) return;
   const reader = new FileReader();
@@ -348,6 +382,9 @@ async function deleteAnimal(id) {
   else { const d = await res?.json(); showToast(d?.error || "Failed to delete.", "error"); }
 }
 
+// ════════════════════════════════════════════════════
+//  SHELTERS
+// ════════════════════════════════════════════════════
 function renderShelters(data) {
   const grid = document.getElementById("cards-grid");
   if (!data.length) {
@@ -468,7 +505,9 @@ async function deleteShelter(id) {
   else { showToast("Failed to delete shelter.", "error"); }
 }
 
-
+// ════════════════════════════════════════════════════
+//  ADOPTIONS
+// ════════════════════════════════════════════════════
 function renderAdoptions(data) {
   const grid = document.getElementById("cards-grid");
   if (!data.length) {
@@ -525,7 +564,7 @@ function renderAdoptions(data) {
   });
 }
 
-
+// Adoption request (customer)
 function openAdoptionRequest(animalId, animalName, animalSpecies) {
   document.getElementById("adoption-animal-id").value          = animalId;
   document.getElementById("adoption-modal-title").textContent  = `Adopt ${animalName}`;
@@ -575,7 +614,7 @@ async function handleAdoptionSubmit() {
   }
 }
 
-
+// Admin: update status
 function openAdoptionEdit(id, currentStatus) {
   document.getElementById("adoption-edit-id").value     = id;
   document.getElementById("adoption-edit-status").value = currentStatus || "Pending";
@@ -605,7 +644,9 @@ async function deleteAdoption(id) {
   else { showToast("Failed to delete.", "error"); }
 }
 
-
+// ════════════════════════════════════════════════════
+//  TRACK SECTION (in-dashboard version)
+// ════════════════════════════════════════════════════
 function renderTrack() {
   document.getElementById("cards-grid").innerHTML = `
     <div class="track-section">
@@ -676,6 +717,33 @@ async function handleTrackDash() {
 
 function showErr(el, msg) { el.textContent = msg; el.style.display = "block"; }
 
+// ════════════════════════════════════════════════════
+//  USERS (admin only)
+// ════════════════════════════════════════════════════
+function renderUsers(data) {
+  document.getElementById("cards-grid").innerHTML = `
+    <div class="users-table-wrap">
+      <table class="users-table">
+        <thead>
+          <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Registered</th></tr>
+        </thead>
+        <tbody>
+          ${data.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td><strong>${esc(u.name)}</strong></td>
+              <td>${esc(u.email)}</td>
+              <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+              <td>${fmtDate(u.created_at)}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════
+//  DELETE CONFIRM
+// ════════════════════════════════════════════════════
 function setupDeleteModal() {
   document.getElementById("delete-confirm-btn").addEventListener("click", async () => {
     if (!deleteCallback) return;
@@ -693,6 +761,9 @@ function confirmDelete(cb) {
   openModal("delete-overlay");
 }
 
+// ════════════════════════════════════════════════════
+//  SEARCH
+// ════════════════════════════════════════════════════
 function setupSearch() {
   document.getElementById("search-input").addEventListener("input", e => {
     const q = e.target.value.toLowerCase().trim();
