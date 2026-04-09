@@ -1,3 +1,4 @@
+// backend/middleware/auth.js
 const jwt = require("jsonwebtoken");
 const SECRET = process.env.JWT_SECRET || "pawhaven_secret_2024";
 
@@ -25,4 +26,4 @@ function adminOnly(req, res, next) {
   next();
 }
 
-module.exports = { authMiddleware, adminOnly }; 
+module.exports = { authMiddleware, adminOnly };
