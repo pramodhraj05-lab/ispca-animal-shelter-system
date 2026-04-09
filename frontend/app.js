@@ -29,6 +29,72 @@ async function api(url, options = {}) {
   return res;
 }
 
+// ── INIT ─────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  setupUserUI();
+  setupNavigation();
+  loadSection("animals");
+});
+
+// ── USER UI ──────────────────────
+function setupUserUI() {
+  document.getElementById("user-name").textContent = USER.name;
+  document.getElementById("user-role").textContent = USER.role;
+
+  if (IS_ADMIN) {
+    document.querySelectorAll(".admin-only")
+      .forEach(el => el.classList.remove("hidden"));
+  }
+}
+
+// ── NAVIGATION ───────────────────
+function setupNavigation() {
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.addEventListener("click", e => {
+      e.preventDefault();
+
+      document.querySelectorAll(".nav-item")
+        .forEach(n => n.classList.remove("active"));
+
+      item.classList.add("active");
+
+      const section = item.dataset.section;
+      loadSection(section);
+    });
+  });
+}
+
+// ── SECTION META ─────────────────
+const SECTION_META = {
+  animals:   { endpoint: "/animals" },
+  shelters:  { endpoint: "/shelters" },
+  adoptions: { endpoint: "/adoptions" }
+};
+
+// ── LOAD SECTION ─────────────────
+async function loadSection(section) {
+  currentSection = section;
+
+  if (!SECTION_META[section]) return;
+
+  try {
+    const res = await api(SECTION_META[section].endpoint);
+
+    if (!res || !res.ok) throw new Error("API failed");
+
+    const data = await res.json();
+    allData = data;
+
+    if (section === "animals") renderAnimals(data);
+    if (section === "shelters") renderShelters(data);
+    if (section === "adoptions") renderAdoptions(data);
+
+  } catch (err) {
+    document.getElementById("cards-grid").innerHTML =
+      `<p style="color:red">Failed to load ${section}</p>`;
+  }
+}
+
 // ── UTILS ────────────────────────
 function esc(str) {
   const d = document.createElement("div");
@@ -52,62 +118,21 @@ function speciesEmoji(sp) {
   return "🐾";
 }
 
-// ── INIT ─────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  setupUser();
-  setupNav();
-  loadAnimals();
-});
-
-// ── USER UI ──────────────────────
-function setupUser() {
-  document.getElementById("user-name").textContent = USER.name;
-  document.getElementById("user-role").textContent = USER.role;
-
-  if (IS_ADMIN) {
-    document.querySelectorAll(".admin-only")
-      .forEach(el => el.classList.remove("hidden"));
-  }
-}
-
-// ── NAVIGATION ───────────────────
-function setupNav() {
-  document.querySelectorAll(".nav-item").forEach(item => {
-    item.addEventListener("click", e => {
-      e.preventDefault();
-
-      document.querySelectorAll(".nav-item")
-        .forEach(n => n.classList.remove("active"));
-
-      item.classList.add("active");
-
-      const section = item.dataset.section;
-
-      if (section === "animals") loadAnimals();
-    });
-  });
-}
-
-// ── LOAD ANIMALS ─────────────────
-async function loadAnimals() {
-  try {
-    const res = await api("/animals");
-
-    if (!res || !res.ok) throw new Error("API failed");
-
-    const data = await res.json();
-
-    allData = data;
-    renderAnimals(data);
-
-  } catch (err) {
-    document.getElementById("cards-grid").innerHTML =
-      `<p style="color:red">Failed to load animals</p>`;
-  }
-}
-
-// ── RENDER ANIMALS (FIXED CORE) ──
+// ── ANIMALS ──────────────────────
 function renderAnimals(data) {
+
+  // ✅ STATS FIXED
+  document.getElementById("stat-total").textContent = data.length;
+
+  document.getElementById("stat-available").textContent =
+    data.filter(a => (a.status || "Available") === "Available").length;
+
+  document.getElementById("stat-adopted").textContent =
+    data.filter(a => a.status === "Adopted").length;
+
+  document.getElementById("stat-species").textContent =
+    new Set(data.map(a => (a.species || "").toLowerCase()).filter(Boolean)).size;
+
   const grid = document.getElementById("cards-grid");
 
   if (!data.length) {
@@ -120,30 +145,33 @@ function renderAnimals(data) {
   data.forEach((a, i) => {
     const card = document.createElement("div");
     card.className = "animal-card";
+    card.style.animationDelay = `${i * 0.04}s`;
 
     const imgHTML = a.image
       ? `<img class="card-image" src="${esc(a.image)}">`
       : `<div class="card-image-placeholder">${speciesEmoji(a.species)}</div>`;
 
     const adminBtns = IS_ADMIN ? `
-      <button onclick="deleteAnimal(${a.id})">Delete</button>
+      <button class="card-btn" onclick="deleteAnimal(${a.id})">Delete</button>
     ` : "";
 
     card.innerHTML = `
       <div class="card-image-wrap">
         ${imgHTML}
-        <span class="${statusClass(a.status)}">${esc(a.status)}</span>
+        <span class="card-status ${statusClass(a.status)}">
+          ${esc(a.status || "Available")}
+        </span>
       </div>
-      <div>
-        <h3>${esc(a.name)}</h3>
-        <p>${esc(a.species)}</p>
-        ${adminBtns}
+      <div class="card-body">
+        <div class="card-name">${esc(a.name)}</div>
+        <div class="card-meta">${esc(a.species)}</div>
+        <div class="card-actions">${adminBtns}</div>
       </div>
     `;
 
     grid.appendChild(card);
 
-    // FIX: safe image fallback
+    // SAFE IMAGE FALLBACK
     const img = card.querySelector("img");
     if (img) {
       img.onerror = function () {
@@ -153,12 +181,51 @@ function renderAnimals(data) {
   });
 }
 
+// ── SHELTERS ─────────────────────
+function renderShelters(data) {
+  const grid = document.getElementById("cards-grid");
+
+  if (!data.length) {
+    grid.innerHTML = `<p>No shelters found</p>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(s => `
+    <div class="animal-card">
+      <div class="card-body">
+        <div class="card-name">${esc(s.name)}</div>
+        <div>${esc(s.location)}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ── ADOPTIONS ────────────────────
+function renderAdoptions(data) {
+  const grid = document.getElementById("cards-grid");
+
+  if (!data.length) {
+    grid.innerHTML = `<p>No adoptions found</p>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(a => `
+    <div class="animal-card">
+      <div class="card-body">
+        <div class="card-name">${esc(a.animal_name || "Animal")}</div>
+        <div>${esc(a.adopter_name)}</div>
+        <div>${esc(a.status)}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
 // ── DELETE ───────────────────────
 async function deleteAnimal(id) {
   const res = await api(`/animals/${id}`, { method: "DELETE" });
 
   if (res?.ok) {
-    loadAnimals();
+    loadSection("animals");
   } else {
     alert("Delete failed");
   }
