@@ -1,9 +1,4 @@
-/* ═══════════════════════════════════════════════════
-   ISPCA Tracking System — app.js
-   Full navigation · CRUD · Role-based UI · Tracking
-═══════════════════════════════════════════════════ */
 
-// ── AUTH GUARD ─────────────────────────────────────
 const TOKEN = localStorage.getItem("token");
 const USER  = JSON.parse(localStorage.getItem("user") || "null");
 if (!TOKEN || !USER) { window.location.href = "/"; }
@@ -63,6 +58,11 @@ function speciesEmoji(sp) {
   if (s.includes("fish"))              return "🐟";
   if (s.includes("snake"))             return "🐍";
   return "🐾";
+}
+
+// Safe image fallback — called from onerror attribute (avoids quote-escaping bugs)
+function imgFallback(imgEl, emoji) {
+  imgEl.parentElement.innerHTML = `<div class="card-image-placeholder">${emoji}</div>`;
 }
 
 function fmtDate(d) {
@@ -212,10 +212,11 @@ function renderAnimals(data) {
     card.style.animationDelay = `${i * 0.04}s`;
 
     const imgSrc = a.image || "";
+    const emoji  = speciesEmoji(a.species);
     const imgHTML = imgSrc
       ? `<img class="card-image" src="${esc(imgSrc)}" alt="${esc(a.name)}"
-             onerror="this.parentElement.innerHTML='<div class=\'card-image-placeholder\'>${speciesEmoji(a.species)}</div>'">`
-      : `<div class="card-image-placeholder">${speciesEmoji(a.species)}</div>`;
+             onerror="imgFallback(this,'${emoji}')">`
+      : `<div class="card-image-placeholder">${emoji}</div>`;
 
     // Admin buttons
     const adminBtns = IS_ADMIN ? `

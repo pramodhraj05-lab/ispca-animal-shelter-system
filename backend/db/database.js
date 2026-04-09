@@ -64,6 +64,11 @@ db.serialize(() => {
   )`);
 
   // ── SEED ADMIN ACCOUNT ────────────────────────────────
+  // Migration: add name column if old DB exists without it
+  db.run("ALTER TABLE users ADD COLUMN name TEXT NOT NULL DEFAULT ''", () => {
+    // Ignore error — it just means column already exists
+  });
+
   db.get("SELECT id FROM users WHERE email = 'admin@ispca.ie'", [], (err, row) => {
     if (!row) {
       const hash = bcrypt.hashSync("admin123", 10);
