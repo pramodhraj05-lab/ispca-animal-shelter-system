@@ -93,7 +93,6 @@ function showGridError(msg) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupUserUI();
   setupNavigation();
   setupSearch();
   setupAddBtn();
