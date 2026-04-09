@@ -171,7 +171,6 @@ function renderSection(section, data) {
   if      (section === "animals")   renderAnimals(data);
   else if (section === "shelters")  renderShelters(data);
   else if (section === "adoptions") renderAdoptions(data);
-  else if (section === "users")     renderUsers(data);
 }
 
 // ════════════════════════════════════════════════════
