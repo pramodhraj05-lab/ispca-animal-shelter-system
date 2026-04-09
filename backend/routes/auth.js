@@ -3,6 +3,8 @@ const router = express.Router();
 const db = require("../db/database");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { authMiddleware, adminOnly } = require("../middleware/auth");
+
 
 // ✅ SAME SECRET as middleware
 const SECRET = process.env.JWT_SECRET || "pawhaven_secret_2024";
@@ -49,14 +51,6 @@ router.post("/register", (req, res) => {
   );
 });
 
-// GET /auth/users - admin only
-router.get("/users", authMiddleware, adminOnly, (req, res) => {
-  db.all("SELECT id, name, email, role, created_at FROM users ORDER BY id", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
-});
-
 // ─────────────────────────────────────────────
 // LOGIN
 // ─────────────────────────────────────────────
@@ -91,5 +85,14 @@ router.post("/login", (req, res) => {
     });
   });
 });
+
+// GET /auth/users - admin only
+router.get("/users", authMiddleware, adminOnly, (req, res) => {
+  db.all("SELECT id, name, email, role, created_at FROM users ORDER BY id", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
 
 module.exports = router;
