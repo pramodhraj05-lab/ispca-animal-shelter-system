@@ -118,16 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSheltersCache();
 });
 
-// ── USER UI ────────────────────────────────────────
-function setupUserUI() {
-  document.getElementById("user-name").textContent   = USER.name;
-  document.getElementById("user-role").textContent   = USER.role;
-  document.getElementById("user-avatar").textContent = (USER.name || "?")[0].toUpperCase();
-  if (IS_ADMIN) {
-    document.querySelectorAll(".admin-only").forEach(el => el.classList.remove("hidden"));
-  }
-}
-
 // ════════════════════════════════════════════════════
 //  NAVIGATION  ← this is what was broken
 // ════════════════════════════════════════════════════
