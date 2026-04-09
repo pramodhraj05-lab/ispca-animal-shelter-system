@@ -49,6 +49,14 @@ router.post("/register", (req, res) => {
   );
 });
 
+// GET /auth/users - admin only
+router.get("/users", authMiddleware, adminOnly, (req, res) => {
+  db.all("SELECT id, name, email, role, created_at FROM users ORDER BY id", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
 // ─────────────────────────────────────────────
 // LOGIN
 // ─────────────────────────────────────────────
