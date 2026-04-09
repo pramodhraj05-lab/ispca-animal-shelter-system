@@ -2,7 +2,7 @@ const TOKEN = localStorage.getItem("token");
 const USER  = JSON.parse(localStorage.getItem("user") || "null");
 if (!TOKEN || !USER) { window.location.href = "/"; }
 
-const IS_ADMIN = USER?.role === "admin";
+const IS_ADMIN = false;
 
 
 let currentSection = "animals";
@@ -123,7 +123,6 @@ const SECTION_META = {
   shelters:  { title:"Shelters",  subtitle:"All registered ISPCA shelters",     endpoint:"/shelters" },
   adoptions: { title:"Adoptions", subtitle:"Adoption requests & status",        endpoint:"/adoptions" },
   track:     { title:"Track",     subtitle:"Track an adoption request",         endpoint:null },
-  users:     { title:"Users",     subtitle:"All registered accounts",           endpoint:"/auth/users" },
 };
 
 async function loadSection(section) {
