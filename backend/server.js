@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
 
 // ── START ─────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`\n🐾 ISPCA running on http://localhost:${PORT}`);
   console.log(`   Admin login: admin@pawhaven.com / admin123\n`);
 });
