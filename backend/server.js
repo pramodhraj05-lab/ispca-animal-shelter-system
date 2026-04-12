@@ -14,8 +14,8 @@ process.on("unhandledRejection", err => {
 
 // ── MIDDLEWARE ───────────────────────────────────
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // ── STATIC FILES ─────────────────────────────────
 app.use(express.static(path.join(__dirname, "../frontend")));
@@ -24,16 +24,16 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // ── ROUTES ────────────────────────────────────────
-const authRoutes     = require("./routes/auth");
-const animalRoutes   = require("./routes/animals");
-const shelterRoutes  = require("./routes/shelters");
+const authRoutes = require("./routes/auth");
+const animalRoutes = require("./routes/animals");
+const shelterRoutes = require("./routes/shelters");
 const adoptionRoutes = require("./routes/adoptions");
 const { authMiddleware, adminOnly } = require("./middleware/auth");
 
 app.use("/auth", authRoutes);
 
-app.use("/animals",   animalRoutes);
-app.use("/shelters",  shelterRoutes);
+app.use("/animals", animalRoutes);
+app.use("/shelters", shelterRoutes);
 app.use("/adoptions", adoptionRoutes);
 
 // ── FRONTEND ROUTES ───────────────────────────────
@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
 
 // ── START ─────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT,"0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`\n🐾 ISPCA running on http://localhost:${PORT}`);
   console.log(`   Admin login: admin@pawhaven.com / admin123\n`);
 });
