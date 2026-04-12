@@ -5,7 +5,12 @@
     "main": "backend/server.js",
     "scripts": {
         "start": "node backend/server.js",
-        "dev": "nodemon backend/server.js"
+        "dev": "nodemon backend/server.js",
+        "test": "jest --testPathPatterns=tests/ --forceExit"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "testTimeout": 10000
     },
     "dependencies": {
         "bcryptjs": "^3.0.3",
@@ -16,6 +21,8 @@
         "sqlite3": "^5.1.7"
     },
     "devDependencies": {
-        "nodemon": "^3.0.3"
+        "jest": "*",
+        "nodemon": "^3.0.3",
+        "supertest": "*"
     }
 }
