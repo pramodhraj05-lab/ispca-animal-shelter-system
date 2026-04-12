@@ -1,12 +1,12 @@
-**ISPCA Animal Intake & Rehoming Tracker**
+### ISPCA Animal Intake & Rehoming Tracker
 
-**Project Overview**
+### Project Overview
 This project is a basic Information System designed for the Irish Society for the Prevention of Cruelty to Animals (ISPCA). The system helps manage rescued animals within a shelter by allowing staff to record animal details, update their status, and track their progress toward adoption.The goal is to improve visibility of animals currently in care and support better organisation within shelters.
 
-**Problem Statement**
+### Problem Statement
 ISPCA shelters often handle a large number of rescued animals.Tracking their intake, health condition, and adoption status can become difficult, especially during periods of overcrowding. This system provides a structured way to manage that information.
 
-**Features**
+### Features
 1. Add new rescued animals
 2. View animals occupany in the shelter
 3. Update adoption status
@@ -33,12 +33,45 @@ ISPCA shelters often handle a large number of rescued animals.Tracking their int
 1. View all registered users in a table
 2. Admin-only: add/edit/delete animals, shelters, adoption status updates
 
-**Technologies Used**
+### Implementation Steps
+
+1. Project Setup  
+The project was first set up using Node.js, and a proper folder structure was created for backend, frontend, and data handling.
+
+2. Backend Development  
+An Express server was built to handle all API requests, and different routes were created for animals, shelters, users, and adoptions.
+
+3. Database Integration  
+SQLite was used to store all data, including animal records, shelter details, user information, and adoption requests.
+
+4. CRUD Functionality  
+Basic CRUD operations were implemented to allow adding, viewing, updating, and deleting data across all modules.
+
+5. Image Upload  
+Multer was integrated to allow uploading animal images, which are stored on the server.
+
+6. Authentication  
+User authentication was implemented using JWT, and roles were added to manage access between admin and normal users.
+
+7. Frontend Development  
+The frontend was built using HTML, CSS, and JavaScript to display data and allow user interaction with the system.
+
+8. Integration  
+The frontend was connected to the backend using API calls, enabling real-time updates and data handling.
+
+9. Debugging  
+Issues like routing errors, port conflicts, and file upload limits were identified and fixed during development.
+
+10. Testing  
+The application was tested to ensure all features work correctly and the system runs smoothly.
+
+
+### Technologies Used
 1. Frontend: HTML, CSS, JavaScript
 2. Backend: Node.js, Express.js
 3. Database: SQLite
 
-**Screenshots**
+### Screenshots
 
 <img width="1461" height="793" alt="Screenshot 2026-04-12 at 2 18 21 PM" src="https://github.com/user-attachments/assets/459466e0-63fa-4e5c-a46d-c0909ea41b3f" />
 
@@ -75,11 +108,11 @@ This feature allows users to track the status of their adoption request by enter
 
 This section displays all registered users in the system along with their roles, such as admin or customer. It helps administrators manage user access and monitor who is interacting with the system.
 
-**Conclusion**
+## Conclusion
 
 This project provides a simple and effective system for managing animal shelters and improving the adoption process. It allows administrators to easily track animal records, manage shelters, and handle adoption requests in an organized way. By combining a user-friendly interface with essential backend functionality, the system improves efficiency, transparency, and overall management of rescued animals. It serves as a practical solution for streamlining shelter operations and supporting better care and rehoming of animals.
 
-**Reference**
+## Reference
 
 ### Youtube channels
 - https://www.youtube.com/watch?v=RiOoYPxJAzk
